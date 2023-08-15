@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         child,
       ) {
         return MaterialApp(
-          title: 'Shop Smart AR',
+          title: 'Shop Smart',
           theme: Styles.themeData(
               isDarkTheme: themeProvider.getIsDarkTheme, context: context),
           home: const RootScreen(),

@@ -44,6 +44,9 @@ dependencies:
   card_swiper: ^3.0.1
   fancy_shimmer_image: ^2.0.3
   ionicons: ^0.2.2
+  firebase_core: ^2.15.0
+  firebase_auth: ^4.7.2
+  cloud_firestore: ^4.8.4
 
 dev_dependencies:
   flutter_test:

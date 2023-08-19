@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +6,7 @@ import 'package:test00/screens/auth/login.dart';
 import 'package:test00/screens/inner_screens/orders/orders_screen.dart';
 import 'package:test00/screens/inner_screens/viewed_recently.dart';
 import 'package:test00/screens/inner_screens/wishlist.dart';
+import 'package:test00/services/my_app_method.dart';
 import 'package:test00/widgets/app_name_text.dart';
 import 'package:test00/widgets/subtitle_text.dart';
 import 'package:test00/widgets/title_text.dart';
@@ -12,9 +14,14 @@ import 'package:test00/widgets/title_text.dart';
 import '../providers/theme_provider.dart';
 import '../services/assets_manager.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends State<ProfileScreen> {
+  User? user = FirebaseAuth.instance.currentUser;
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -69,7 +76,8 @@ class ProfileScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TitlesTextWidget(label: "Alaa Rashed"),
-                        SubtitleTextWidget(label: "alaa.noman.rashed@gmail.com"),
+                        SubtitleTextWidget(
+                            label: "alaa.noman.rashed@gmail.com"),
                       ],
                     ),
                   ],
@@ -158,22 +166,29 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  icon: const Icon(Icons.login),
-                  label: const Text(
-                    "Login",
+                  icon: Icon(user == null ? Icons.login : Icons.logout),
+                  label: Text(
+                    user == null ? "Login" : "Logout",
                   ),
                   onPressed: () async {
-                    await Navigator.pushNamed(
-                      context,
-                      LoginScreen.routName,
-                    );
-                    // await MyAppMethods.showErrorORWarningDialog(
-                    //     context: context,
-                    //     subtitle: "Are you sure?",
-                    //     fct: () async {
-
-                    //     },
-                    //     isError: false);
+                    if (user == null) {
+                      await Navigator.pushNamed(
+                        context,
+                        LoginScreen.routName,
+                      );
+                    } else {
+                      await MyAppMethods.showErrorORWarningDialog(
+                          context: context,
+                          subtitle: "Are you sure?",
+                          fct: () async {
+                            await FirebaseAuth.instance.signOut();
+                            await Navigator.pushNamed(
+                              context,
+                              LoginScreen.routName,
+                            );
+                          },
+                          isError: false);
+                    }
                   },
                 ),
               ),

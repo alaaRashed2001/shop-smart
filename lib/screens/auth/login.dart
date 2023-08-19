@@ -1,8 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:test00/consts/my_validators.dart';
+import 'package:test00/root_screen.dart';
 import 'package:test00/screens/auth/forgot_password.dart';
 import 'package:test00/screens/auth/register.dart';
+import 'package:test00/services/my_app_method.dart';
 import 'package:test00/widgets/app_name_text.dart';
 import 'package:test00/widgets/auth/google_btn.dart';
 import 'package:test00/widgets/subtitle_text.dart';
@@ -22,6 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
   late final FocusNode _passwordFocusNode;
   late final _formKey = GlobalKey<FormState>();
   bool obscureText = true;
+  bool isLoading = false;
+  FirebaseAuth auth = FirebaseAuth.instance;
   @override
   void initState() {
     _emailController = TextEditingController();
@@ -45,7 +51,39 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loginFct() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    if (isValid) {}
+    if (isValid) {
+      _formKey.currentState!.save();
+      try {
+        setState(() {
+          isLoading = true;
+        });
+        await auth.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+        Fluttertoast.showToast(
+          msg: "Login successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          textColor: Colors.white,
+        );
+        if(!mounted) return;
+        Navigator.pushReplacementNamed(context, RootScreen.routeName);
+      }on FirebaseException catch (error) {
+        await MyAppMethods.showErrorORWarningDialog(
+            context: context,
+            subtitle: "An error has been occurred ${error.message}",
+            fct: () {});
+      }catch (error) {
+        await MyAppMethods.showErrorORWarningDialog(
+            context: context,
+            subtitle: "An error has been occurred $error",
+            fct: () {});
+      }  finally {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override

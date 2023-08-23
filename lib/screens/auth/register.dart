@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -68,12 +69,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (isValid) {
       _formKey.currentState!.save();
-      if (_pickedImage == null) {
-        MyAppMethods.showErrorORWarningDialog(
-            context: context,
-            subtitle: "Make sure to pick up an image",
-            fct: () {});
-      }
+      // if (_pickedImage == null) {
+      //   MyAppMethods.showErrorORWarningDialog(
+      //       context: context,
+      //       subtitle: "Make sure to pick up an image",
+      //       fct: () {});
+      // }
       try {
         setState(() {
           isLoading = true;
@@ -82,6 +83,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
         );
+       User? user = auth.currentUser;
+       final uid = user!.uid;
+       await FirebaseFirestore.instance.collection('users').doc(uid).set({
+         'userId': uid,
+         'userName': _nameController.text,
+         'userImage': "",
+         'userEmail': _emailController.text.toLowerCase(),
+         'createdAt': Timestamp.now(),
+         'userWish': [],
+         'userCart': [],
+       });
         Fluttertoast.showToast(
             msg: "An account has been created",
             toastLength: Toast.LENGTH_SHORT,
